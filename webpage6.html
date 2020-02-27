@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Messanger</title>
+	<link type="text/css" href="styleapp6.css" rel="stylesheet">
+	<style type="text/css">
+		@-webkit-keyframes mj{
+			0%{background:#FFAE00;}
+			50%{background: #00CBFF}
+			100%{background:#BDFF66;}
+			
+		}
+	body{
+	background-color: #CCCCCC;
+		}
+		.chat, .send{
+			height: 50px;
+			width:80px;
+			border-radius: 50px;
+			
+			font-size: 20px;
+			animation: mj 2s infinite;
+			//animation-iteration-count: infinite;
+			transition: background,height,width, 0.5s;
+			transition-timing-function: ease-in-out; 
+		}
+		.chat:hover{
+			animation: none;
+			height: 70px;
+			width:100px;
+			cursor: pointer;
+			background : #FF9227;
+		}
+	</style>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js" integrity="sha256-OgiHfllOBEOiWQ2OcBsDncRG2k7QBW9Rs1dB7MH2N2s=" crossorigin="anonymous"></script>
+
+	<script>
+	var soc = io();
+		function setusername(){
+			soc.emit('setusername', document.getElementById('name').value);
+		}
+		var user;
+		soc.on('userexists', function(data){
+			document.getElementById('error-container').innerHTML=data;
+		});
+		soc.on('userset',function(data){
+			user = data.username;
+			document.body.innerHTML = '<input type="text" id="message">\
+				<button type="button" class="send" name="button" onclick="sendmessage()">Send</button>\
+					<div id="message-container"></div>';
+		});
+		function sendmessage(){
+			var msg = document.getElementById('message').value;
+			if(msg){
+				soc.emit('msg',{message : msg, user : user});
+			}
+		}
+		soc.on('newmsg',function(data){
+			if(user){
+				document.getElementById('message-container').innerHTML+='<div><b>'+data.user+'</b>: '+data.message+'</div>'
+			}
+1		});
+	</script>
+<body>
+	<div id = "error-container"></div>
+	<input id="name" type="text" name="name" value="" placeholder="Enter your name">
+	<button class="chat" type="button" name="button" onClick="setusername()">Chat</button>
+</body>
+</html>	
